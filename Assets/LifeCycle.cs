@@ -1,80 +1,56 @@
+using System.Buffers.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class LifeCycle : MonoBehaviour
 {
-    // // Input Manager : Old
-    // void Update()
-    // {
-    //     if (Input.anyKeyDown) // 최초 1회 실행
-    //     {
-    //         Debug.Log("플레이어가 아무 키를 눌렀습니다.");
-    //     }
-    //     if (Input.anyKey) // 누르고 있는 프레임 동안 무제한 실행
-    //     {
-    //         Debug.Log("플레이어가 아무 키를 누르고 있습니다.");
-    //     }
-
-    //     if (Input.GetKeyDown(KeyCode.Return))
-    //     {
-    //         Debug.Log("플레이어가 Enter를 눌렀습니다.");
-    //     }
-    //     if (Input.GetKey(KeyCode.W))
-    //     {
-    //         Debug.Log("앞쪽 이동 중");
-    //     }
-    //     if (Input.GetKeyUp(KeyCode.W))
-    //     {
-    //         Debug.Log("앞쪽 이동 정지");
-    //     }
-
-    //     if (Input.GetMouseButtonDown(0)) // 0은 왼쪽, 1은 오른쪽
-    //     {
-    //         Debug.Log("레일건 목표 설정 완료.");
-    //     }
-    //     if (Input.GetMouseButton(0))
-    //     {
-    //         Debug.Log("레일건 충전 중...");
-    //     }
-    //     if (Input.GetMouseButtonUp(0))
-    //     {
-    //         Debug.Log("레일건 발사!");
-    //     }
-
-    //     if (Input.GetButton("Jump")) // 문자열은 버튼의 이름
-    //     {
-    //         Debug.Log("Ready...");
-    //     }
-    //     if (Input.GetButtonUp("Jump"))
-    //     {
-    //         Debug.Log("Go!!");
-    //     }
-    //     if (Input.GetButtonDown("Cancel"))
-    //     {
-    //         Debug.Log("FNaF였으면 바로 게임이 꺼졌을 것");
-    //     }
-    // // }
-
-    // Input System : New
+    void Start()
+    {
+        // Vector3 vec = new Vector3(0, 0, 0); // 주문서
+        // transform.Translate(vec); // 주방에 주문 넣기
+    }
     void Update()
     {
-        if ((Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.middleButton.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.forwardButton.wasPressedThisFrame) || (Mouse.current != null && Mouse.current.backButton.wasPressedThisFrame)) 
-        {
-            Debug.Log("플레이어가 아무 키를 눌렀습니다.");
-        }
-        if ((Keyboard.current != null && Keyboard.current.anyKey.isPressed) || (Mouse.current != null && Mouse.current.leftButton.isPressed) || (Mouse.current != null && Mouse.current.rightButton.isPressed) || (Mouse.current != null && Mouse.current.middleButton.isPressed) || (Mouse.current != null && Mouse.current.forwardButton.isPressed) || (Mouse.current != null && Mouse.current.backButton.isPressed)) 
-        {
-            Debug.Log("플레이어가 아무 키를 누르고 있습니다.");
-        }
+        // if (Input.GetButton("Horizontal"))
+        // {
+        //     // Debug.Log("Horizon은 수평선, 왼쪽과 오른쪽을 의미합니다.
+        //     // Debug.Log($"출력 값은 버튼을 누른 시간과 비례합니다: {Input.GetAxis("Horizontal")}");
+        //     // Debug.Log($"출력 값은 버튼을 누른 시간과 상관없이 무조건 1을 가집니다: {Input.GetAxisRaw("Horizontal")}");
+        //     // 왼쪽 버튼과 오른쪽 버튼을 동시에 누를 경우 출력 값은 0입니다.
+        //     // 즉, GetAxix는 부드러운 이동, GetAxixRow는 즉시 이동이라고 할 수 있습니다.
+        //     // Axis는 축, Raw는 가공되지 않은 날것의 신호를 의미합니다.            
 
-        if (Keyboard.current != null && Keyboard.current.spaceKey.isPressed)
-        {
-            Debug.Log("무한한 공간 저 너머로!");
-        }
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasReleasedThisFrame)
-        {
-            Debug.Log("나는 게 아냐. 멋지게 떨어지는 거지.");
-        }
+        //     switch (Input.GetAxisRaw("Horizontal"))
+        //     {
+        //         case -1:
+        //             Debug.Log("왼쪽으로 이동 중...");
+        //             break;
+        //         case 1:
+        //             Debug.Log("오른쪽으로 이동 중...");
+        //             break;
+        //         default:
+        //             Debug.Log("Horizontal Return 0");
+        //             break;
+        //     }
+        // }
+        // if (Input.GetButton("Vertical"))
+        // {
+        //     switch (Input.GetAxisRaw("Vertical"))
+        //     {
+        //         case -1:
+        //             Debug.Log("아래쪽으로 이동 중...");
+        //             break;
+        //         case 1:
+        //             Debug.Log("위쪽으로 이동 중...");
+        //             break;
+        //         default:
+        //             Debug.Log("Vertical Return 0");
+        //             break;
+        //     }
+        // }
+
+        Vector3 vec = new Vector3(Input.GetAxisRaw("Horizontal") / 10.0f, Input.GetAxisRaw("Vertical")/10.0f, 0);
+        transform.Translate(vec);
     }
 }
