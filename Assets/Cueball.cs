@@ -6,7 +6,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
     bool isJumpPressed;
     float h;
     float v;
-    [SerializeField] private float weight = 715; // 직렬화 SerializeField
+    [SerializeField] private float weight = 1; // 직렬화 SerializeField
     void Start()
     {
         rigid = GetComponent<Rigidbody>();
@@ -29,7 +29,18 @@ public class NewMonoBehaviourScript : MonoBehaviour
             isJumpPressed = false;
             rigid.AddForce(Vector3.up * 5, ForceMode.Impulse);
         }
-        rigid.AddTorque(Vector3.back * h * weight);
-        rigid.AddTorque(Vector3.right * v * weight);
+        rigid.AddForce(Vector3.forward * v * weight);
+        rigid.AddForce(Vector3.right * h * weight);
     }
+
+    void OnTriggerStay(Collider other)
+    {
+        if (other.name == "Triggercube")
+        {
+            rigid.AddForce(Vector3.up * 0.5f, ForceMode.Impulse);
+        }
+    }
+
+    // OnTrigger(Collider other) == 어떤 녀석이 영역 안으로 넘어왔냐? other가 어떤 녀석
+    // OnCollision(Collision collision) == 방금 무슨 사고가 터진 거냐? collision이 사고 보고서
 }

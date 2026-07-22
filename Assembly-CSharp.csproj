@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Cueball.cs" />
+    <Compile Include="Assets\Objectball.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
