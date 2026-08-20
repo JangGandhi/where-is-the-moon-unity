@@ -67,6 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "study-unity.slnx",
+    "dotnet.defaultSolution": "where-is-the-moon.slnx",
     "dotnet.enableWorkspaceBasedDevelopment": false
 }
