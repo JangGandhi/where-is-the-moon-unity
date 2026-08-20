@@ -16,18 +16,33 @@ public class Player : MonoBehaviour
     bool isJump = false;
     bool isFlight = false;
     AudioSource audio;
+    Transform camTransform;
 
     void Awake()
     {
         rigid = GetComponent<Rigidbody>();
         audio = GetComponent<AudioSource>();
     }
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        camTransform = Camera.main.transform;
+    }
 
     void Update()
     {
+        Vector3 camFoward = camTransform.forward;
+        Vector3 camRight = camTransform.right;
+        camFoward.y = 0.0f;
+        camRight.y = 0.0f;
+        camFoward.Normalize();
+        camRight.Normalize();
+
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-        directionVector = new Vector3(h, 0, v);
+        directionVector = ((camFoward * v) + (camRight * h)).normalized;
 
         if (!isFlight && Input.GetButtonDown("Jump"))
         {
@@ -73,7 +88,6 @@ public class Player : MonoBehaviour
                 Debug.Log($"Stage{manager.stageNumber} Clear!");
                 SceneManager.LoadScene("Stage" + (manager.stageNumber + 1));
                 other.gameObject.SetActive(false);
-
             }
             else
             {
