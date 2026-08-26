@@ -112,3 +112,6 @@ InitTestScene*.unity*
 .vsconfig
 UpgradeLog.htm
 Assembly-CSharp.csproj
+
+# Build Folder
+/Build/
