@@ -6,11 +6,12 @@ TagManager:
   tags:
   - Platform
   - Item
+  - Stone
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Platform
   - Water
   - UI
   - 
