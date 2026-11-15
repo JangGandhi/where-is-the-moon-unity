@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using System.Diagnostics;
 using NUnit.Framework;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,13 +14,17 @@ public class Player : MonoBehaviour
     Vector3 directionVector;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpPower;
-    [SerializeField] private int playerItemCount;
 
     public bool isJump = false;
     public bool isFlight = false;
 
+    [SerializeField] private AudioSource getAudioSource;
+    [SerializeField] private AudioClip coinGet;
+
     [SerializeField] private AudioSource rollingAudioSource;
+    [SerializeField] private AudioSource impactAudioSource;
     [SerializeField] private AudioClip stoneRolling;
+    [SerializeField] private AudioClip stoneImpact;
     bool isRolling = false;
 
     Transform camTransform;
@@ -55,7 +62,7 @@ public class Player : MonoBehaviour
         if (Physics.Raycast(rigidbody.position, Vector3.down, 1, LayerMask.GetMask("Platform"))) // Player가 Platform 위에 있으면
         {
             isFlight = false;
-            float playerVelocity = new Vector3(rigidbody.linearVelocity.x, 0, rigidbody.linearVelocity.z).magnitude;
+            float playerVelocity = new Vector3(rigidbody.linearVelocity.x, 0, rigidbody.linearVelocity.z).magnitude / 17.64f;
             if (playerVelocity > 0.5f) // Player가 Platform 위에서 움직이면
             {
                 if (!isRolling) // 발소리 재생
@@ -66,7 +73,8 @@ public class Player : MonoBehaviour
                 }
                 else // Player의 속도에 비례한 발소리 음량 조절
                 {
-                    rollingAudioSource.volume = (playerVelocity / 17.64f) / 2.0f;
+                    float rollingVolume = Mathf.Clamp01(playerVelocity / 2.0f);
+                    rollingAudioSource.volume = rollingVolume;
                 }
             }
             else
@@ -99,29 +107,62 @@ public class Player : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider collider)
     {
-        if (other.tag == "Item")
+        if (collider.CompareTag("Finish"))
         {
-            playerItemCount++;
-            manager.GetItem(playerItemCount);
-            other.gameObject.SetActive(false);
+            collider.gameObject.SetActive(false);
         }
-
-        if (other.tag == "Finish")
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Item"))
         {
-            // Find 계열 함수는 부하가 꽤 있으므로 피하는 것을 권장
-            if (playerItemCount == manager.totalItemCount)
+            manager.GetItem(collider.gameObject.tag);
+            switch (collider.tag)
             {
-                Debug.Log($"Stage{manager.stageNumber} Clear!");
-                SceneManager.LoadScene("Stage" + (manager.stageNumber + 1));
-                other.gameObject.SetActive(false);
+                case "Coin":
+                    {
+                        getAudioSource.PlayOneShot(coinGet);
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
             }
-            else
-            {
-                Debug.Log("Game Over..");
-                SceneManager.LoadScene("Stage" + manager.stageNumber);
-            }
+            collider.gameObject.SetActive(false);
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        string collisionLayerName = LayerMask.LayerToName(collision.gameObject.layer);
+        switch (collisionLayerName)
+        {
+            case "Platform":
+                {
+                    // 사용자가 Jump 했을 때의 충격량을 1로 계산할 수 있도록 14.43으로 나누어 보정
+                    float impactPower = collision.impulse.magnitude / 14.43f;
+                    // 충격량이 1일 때 충격음의 음량이 0.6이 되도록 보정 후 반영
+                    float impactVolume = Mathf.Clamp01(impactPower * 0.6f);
+                    impactAudioSource.volume = impactVolume;
+
+                    switch (collision.gameObject.tag)
+                    {
+                        case "Stone":
+                            {
+                                impactAudioSource.PlayOneShot(stoneImpact);
+                                break;
+                            }
+                        default:
+                            {
+                                break;
+                            }
+                    }
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
         }
     }
 }

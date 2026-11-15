@@ -10,17 +10,27 @@ public class GameManager : MonoBehaviour
 {
     public int totalItemCount;
     public int stageNumber;
-    public TMP_Text playerCoinCount;
-    public TMP_Text totalCoinCount;
+    public int score;
+    public TMP_Text scoreValue;
 
-
-    void Awake()
+    void Update()
     {
-        totalCoinCount.text = totalItemCount.ToString("00");
+        scoreValue.text = $"{score:000000}";
     }
-    public void GetItem(int count)
+    public void GetItem(string tag)
     {
-        playerCoinCount.text = count.ToString("00");
+        switch (tag)
+        {
+            case "Coin":
+                {
+                    score += 3000;
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
     }
 
     void OnTriggerEnter(Collider other)
