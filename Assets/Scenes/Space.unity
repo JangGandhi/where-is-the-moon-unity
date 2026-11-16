@@ -11989,7 +11989,9 @@ MonoBehaviour:
   moveSpeed: 40
   jumpPower: 30
   isJump: 0
-  isFlight: 0
+  isGrounded: 0
+  jumpGraceTimer: 0
+  jumpGraceDuration: 0.2
   getAudioSource: {fileID: 265242098}
   coinGet: {fileID: 8300000, guid: 79180f511d89441b9aa23ccae1992fe0, type: 3}
   rollingAudioSource: {fileID: 265242096}

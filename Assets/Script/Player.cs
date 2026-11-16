@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using NUnit.Framework;
 using Unity.Mathematics;
 using UnityEditor;
@@ -16,7 +15,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpPower;
 
     public bool isJump = false;
-    public bool isFlight = false;
+    public bool isGrounded = false;
+    public float jumpGraceTimer = 0.0f;
+    public float jumpGraceDuration = 0.5f;
 
     [SerializeField] private AudioSource getAudioSource;
     [SerializeField] private AudioClip coinGet;
@@ -59,38 +60,10 @@ public class Player : MonoBehaviour
         float v = Input.GetAxisRaw("Vertical");
         directionVector = ((camFoward * v) + (camRight * h)).normalized;
 
-        if (Physics.Raycast(rigidbody.position, Vector3.down, 1, LayerMask.GetMask("Platform"))) // Player가 Platform 위에 있으면
-        {
-            isFlight = false;
-            float playerVelocity = new Vector3(rigidbody.linearVelocity.x, 0, rigidbody.linearVelocity.z).magnitude / 17.64f;
-            if (playerVelocity > 0.5f) // Player가 Platform 위에서 움직이면
-            {
-                if (!isRolling) // 발소리 재생
-                {
-                    isRolling = true;
-                    rollingAudioSource.clip = stoneRolling;
-                    rollingAudioSource.Play();
-                }
-                else // Player의 속도에 비례한 발소리 음량 조절
-                {
-                    float rollingVolume = Mathf.Clamp01(playerVelocity / 2.0f);
-                    rollingAudioSource.volume = rollingVolume;
-                }
-            }
-            else
-            {
-                rollingAudioSource.Stop();
-                isRolling = false;
-            }
-        }
-        else
-        {
-            isFlight = true;
-            rollingAudioSource.Stop();
-            isRolling = false;
-        }
 
-        if (!isFlight && Input.GetButtonDown("Jump"))
+        CheckPlatform();
+
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
             isJump = true;
         }
@@ -149,6 +122,7 @@ public class Player : MonoBehaviour
                     {
                         case "Stone":
                             {
+                                impactAudioSource.pitch = UnityEngine.Random.Range(0.5f, 1.5f);
                                 impactAudioSource.PlayOneShot(stoneImpact);
                                 break;
                             }
@@ -164,5 +138,68 @@ public class Player : MonoBehaviour
                     break;
                 }
         }
+    }
+
+    void CheckPlatform()
+    {
+        RaycastHit hitPlatform;
+        if (Physics.Raycast(rigidbody.position, Vector3.down, out hitPlatform, 1, LayerMask.GetMask("Platform"))) // Player가 Platform 위에 서 있으면
+        {
+            isGrounded = true;
+            jumpGraceTimer = 0.0f;
+
+            // 왜 17.64로 나눴었는지 모르겠지만 일단 작동은 하니 좋았쓰
+            float playerVelocity = new Vector3(rigidbody.linearVelocity.x, 0, rigidbody.linearVelocity.z).magnitude / 17.64f;
+            if (playerVelocity > 0.5f) // Player가 Platform 위에서 x축이나 z축으로 움직일 경우
+            {
+                if (!isRolling) // 구르고 있지 않았다면 지금 당장 굴러라
+                {
+                    isRolling = true;
+                    rollingAudioClipSelect(hitPlatform.collider.tag);
+                    rollingAudioSource.Play();
+                }
+                else // 구르고 있었다면 계속 굴러라
+                {
+                    // Player의 속도에 비례한 발소리 음량 조절
+                    float rollingVolume = Mathf.Clamp01(playerVelocity / 2.0f);
+                    rollingAudioSource.volume = rollingVolume;
+                }
+            }
+            else // 움직이지 않을 경우
+            {
+                isRolling = false;
+                rollingAudioSource.Stop();
+            }
+        }
+        else // Player가 공중에 떠 있는 경우
+        {
+            if (jumpGraceDuration > jumpGraceTimer) // 코요테 타임이 끝나지 않았다면
+            {
+                jumpGraceTimer += Time.deltaTime;
+            }
+            else // 코요테 타임이 끝났다면
+            {
+                isGrounded = false;
+            }
+            isRolling = false;
+            rollingAudioSource.Stop();
+        }
+    }
+
+    void rollingAudioClipSelect(string tag)
+    {
+        switch (tag)
+        {
+            case "Stone":
+                {
+                    rollingAudioSource.clip = stoneRolling;
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
+        
     }
 }
